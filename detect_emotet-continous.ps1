@@ -6,6 +6,9 @@ Import-module activedirectory
 # Stateful Array for continual monitoring
 # Clears the stateful table after import
 $array = @()
+
+md C:\Logs
+
 if (Test-Path "C:\Logs\data.csv") {
     $array += Import-CSV "C:\Logs\data.csv"
     clear-content "c:\Logs\data.csv"
