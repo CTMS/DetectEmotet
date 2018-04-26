@@ -6,7 +6,7 @@ $regex = '^[0-9]+$'
 
 #
 #$infectedPCs = ('AMPC171','CHEVPC33','GREENPC43','CHEVPC59','CHEVPC57','CHEVPC116','CHEVPC4','CHEVPC26','CHEVPC52','CHEVPC53','CHEVPC45','CHEVPC101','CHEVPC27','CHEVPC106','CHEVPC166','CHEVPC170')
-$infectedPCs = ('AMPC171')
+$infectedPCs = ('CHEVPC186')
 
 echo $infectedPCs
 
@@ -20,10 +20,12 @@ foreach ($i in $infectedPCs) {
 
       $regKeyTimeStamps = @()
 
-      foreach ( $service in $services ) 
+      foreach ( $service in $services )
       {
         Write-Host("Getting service {0} on {1}" -f $service, $client)
-        Get-Service -ComputerName $client -Name RemoteRegistry | Start-Service
+        $remoteregserv = Get-Service -ComputerName $client -Name RemoteRegistry
+        $remoteregserv | Set-Service -StartupType Manual
+        $remoteregserv | Start-Service
 
         $serviceFull = Get-Service -ComputerName $client -Name $service.Name
         $subKey = "SYSTEM\CurrentControlSet\Services\$service"
@@ -31,11 +33,11 @@ foreach ($i in $infectedPCs) {
         echo "Querying $subKey from $client"
 
         $regKeyTimeStamp = Get-RegistryKeyTimestamp -Computername $client -RegistryHive LocalMachine -SubKey $subKey
-        
+
         $regKeyTimeStamps += $regKeyTimeStamp
 
         Get-Service -ComputerName $client -Name RemoteRegistry | Stop-Service
-       
+
       }
 
       $regKeyTimeStamps | sort LastWriteTime -Descending
@@ -43,5 +45,5 @@ foreach ($i in $infectedPCs) {
    else {
     Write-Host  ("Computer {0} appears to be offline or inactive." -f $client)
 }
-   
+
 }
