@@ -93,11 +93,11 @@ function EmailAlert {
     )
 
     $SMTPPort = "25"
-    $CC = "mjimerson@ctmsohio.com","ecooper@ctmsohio.com","jcriss@ctmsohio.com"
+    $CC = "mjimerson@ctmsohio.com", "ecooper@ctmsohio.com", "jcriss@ctmsohio.com"
 
     Send-MailMessage -From $From -to $To -Subject $Subject `
-     -Body $Message -SmtpServer $SMTPServer -Port $SMTPPort `
-     -Cc $CC
+        -Body $Message -SmtpServer $SMTPServer -Port $SMTPPort `
+        -Cc $CC
 }
 
 # Main Function
@@ -135,6 +135,10 @@ while ($true) {
                     $array += $obj
                     Write-Log -Level "FATAL" -Message "!!!Found Emotet Indicators!!!    $client : <$ipv4>" -logfile $log
                     EmailAlert -Message $smtpMessage -From $emailFrom -SMTPServer $emailServer
+                    if (!(Test-Path PCList.txt)) {
+                        New-Item -Name PCList.txt -Type "file"
+                    }
+                    Add-Content PCList.txt -Value "$client"
                     $array | Select-Object Hostname, IPv4, Date | export-csv -LiteralPath "C:\Logs\data.csv"
                 }
                 else {
