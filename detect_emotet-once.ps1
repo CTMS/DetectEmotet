@@ -1,5 +1,12 @@
 [cmdletbinding()]
-Param()
+Param(
+    [Parameter(Mandatory = $true)]
+    [string]
+    $emailFrom,
+    [Parameter(Mandatory = $true)]
+    [string]
+    $emailServer
+)
 
 Import-module activedirectory
 
@@ -7,7 +14,7 @@ Import-module activedirectory
 # Clears the stateful table after import
 $array = @()
 
-md C:\Logs
+mkdir C:\Logs
 
 # if (Test-Path "C:\Logs\data.csv") {
 #     $array += Import-CSV "C:\Logs\data.csv"
@@ -19,6 +26,7 @@ md C:\Logs
 $log = "C:\Logs\Emotet.log"
 $regex = '^[0-9]+$'
 $computernames = Get-ADcomputer -Filter {(OperatingSystem -Notlike "*Server*") -and (Enabled -eq $True)} | Select-Object -Expand Name
+$smtpMessage = "!!!Found Emotet Indicators!!!    $client : <$ipv4>"
 
 # Writes to Log File
 # INFO: Logs each time a cycle finishes
@@ -58,6 +66,39 @@ Function Write-Log {
     }
 }
 
+# Email Alerting Function
+function EmailAlert {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory = $true)]
+        [String]
+        $From,
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $To = "alerts@ctmsohio.com",
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $Subject = "!!! Found New Emotet Indicator !!!",
+
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Message,
+
+        [Parameter(Mandatory = $true)]
+        [string]
+        $SMTPServer
+    )
+
+    $SMTPPort = "25"
+    $CC = "mjimerson@ctmsohio.com","ecooper@ctmsohio.com","jcriss@ctmsohio.com"
+
+    Send-MailMessage -From $From -to $To -Subject $Subject `
+     -Body $Message -SmtpServer $SMTPServer -Port $SMTPPort `
+     -Cc $CC
+}
+
 foreach ($client in $computernames) {
 
   # Testing Connection to Client
@@ -90,6 +131,7 @@ foreach ($client in $computernames) {
           if ($unique) {
               $array += $obj
               Write-Log -Level "FATAL" -Message "!!!Found Emotet Indicators!!!    $client : <$ipv4>" -logfile $log
+              EmailAlert -Message $smtpMessage -From $emailFrom -SMTPServer $emailServer
               $array | Select-Object Hostname, IPv4, Date | export-csv -LiteralPath "C:\Logs\data.csv"
           }
           else {
@@ -112,9 +154,9 @@ foreach ($client in $computernames) {
   else {
       # Logs connection failure to the client
       Write-Verbose  ("Computer {0} appears to be offline or inactive." -f $client)
-      # if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
-      #     Write-Log -Level "ERROR" -Message "Failed to Connect to:    $client" -logfile $log
-      # }
+      if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
+          Write-Log -Level "ERROR" -Message "Failed to Connect to:    $client" -logfile $log
+      }
   }
 }
 Write-Verbose "Current Cycle Finished."
