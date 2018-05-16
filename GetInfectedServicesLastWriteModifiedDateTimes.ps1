@@ -4,15 +4,12 @@ cd C:\ctms\DetectEmotet
 
 $regex = '^[0-9]+$'
 
-#
-#$infectedPCs = ('AMPC171','CHEVPC33','GREENPC43','CHEVPC59','CHEVPC57','CHEVPC116','CHEVPC4','CHEVPC26','CHEVPC52','CHEVPC53','CHEVPC45','CHEVPC101','CHEVPC27','CHEVPC106','CHEVPC166','CHEVPC170')
-$infectedPCs = ('CHEVPC186')
 
-echo $infectedPCs
+$infectedPCs = Get-Content -Path PCList.txt
 
-foreach ($i in $infectedPCs) {
+Write-Host $infectedPCs
 
-   $client = $i
+foreach ($client in $infectedPCs) {
    Write-Host ("Testing Connection: {0}" -f $client)
    if (Test-Connection -Computername $client -BufferSize 16 -Count 1 -Quiet) {
       Write-Host("Getting services: {0}" -f $client)
@@ -30,7 +27,7 @@ foreach ($i in $infectedPCs) {
         $serviceFull = Get-Service -ComputerName $client -Name $service.Name
         $subKey = "SYSTEM\CurrentControlSet\Services\$service"
 
-        echo "Querying $subKey from $client"
+        Write-Host("Querying $subKey from $client")
 
         $regKeyTimeStamp = Get-RegistryKeyTimestamp -Computername $client -RegistryHive LocalMachine -SubKey $subKey
 
@@ -40,7 +37,7 @@ foreach ($i in $infectedPCs) {
 
       }
 
-      $regKeyTimeStamps | sort LastWriteTime -Descending
+      $regKeyTimeStamps | Sort-Object LastWriteTime -Descending
    }
    else {
     Write-Host  ("Computer {0} appears to be offline or inactive." -f $client)
