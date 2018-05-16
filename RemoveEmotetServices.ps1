@@ -26,3 +26,5 @@ foreach ($client in $infectedPCs) {
     }
 
 }
+
+Clear-Content PCList.txt
