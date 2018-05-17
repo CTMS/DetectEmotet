@@ -1,12 +1,5 @@
 [cmdletbinding()]
-Param(
-    [Parameter(Mandatory = $true)]
-    [string]
-    $emailFrom,
-    [Parameter(Mandatory = $true)]
-    [string]
-    $emailServer
-)
+Param()
 
 Import-module activedirectory
 
@@ -27,7 +20,7 @@ $log = "C:\Logs\Emotet.log"
 $regex = '^[0-9]+$'
 $computernames = Get-ADcomputer -Filter {(OperatingSystem -Notlike "*Server*") -and (Enabled -eq $True)} | Select-Object -Expand Name
 $smtpMessage = "!!!Found Emotet Indicators!!!    $client : <$ipv4>"
-
+$strDomainDNS = $env:USERDNSDOMAIN
 
 # Writes to Log File
 # INFO: Logs each time a cycle finishes
@@ -71,10 +64,6 @@ Function Write-Log {
 function EmailAlert {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory = $true)]
-        [String]
-        $From,
-
         [Parameter(Mandatory = $false)]
         [string]
         $To = "alerts@ctmsohio.com",
@@ -87,13 +76,14 @@ function EmailAlert {
         [string]
         $Message,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]
-        $SMTPServer
+        $SMTPServer = "mail.ctmsohio.com"
     )
 
     $SMTPPort = "25"
     $CC = "mjimerson@ctmsohio.com", "ecooper@ctmsohio.com", "jcriss@ctmsohio.com"
+    $From = "Emotet_Alert@$strDomainDNS"
 
     Send-MailMessage -From $From -to $To -Subject $Subject `
         -Body $Message -SmtpServer $SMTPServer -Port $SMTPPort `
@@ -134,7 +124,7 @@ while ($true) {
                 if ($unique) {
                     $array += $obj
                     Write-Log -Level "FATAL" -Message "!!!Found Emotet Indicators!!!    $client : <$ipv4>" -logfile $log
-                    EmailAlert -Message $smtpMessage -From $emailFrom -SMTPServer $emailServer
+                    EmailAlert -Message $smtpMessage
                     if (!(Test-Path PCList.txt)) {
                         New-Item -Name PCList.txt -Type "file"
                     }

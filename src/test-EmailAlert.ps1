@@ -1,20 +1,11 @@
 [cmdletbinding()]
-Param(
-    [Parameter(Mandatory = $true)]
-    [string]
-    $emailFrom,
-    [Parameter(Mandatory = $true)]
-    [string]
-    $emailServer
-)
+Param()
+
+$strDomainDNS = $env:USERDNSDOMAIN
 
 function EmailAlert {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory = $true)]
-        [String]
-        $From,
-
         [Parameter(Mandatory = $false)]
         [string]
         $To = "alerts@ctmsohio.com",
@@ -27,13 +18,14 @@ function EmailAlert {
         [string]
         $Message,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]
-        $SMTPServer
+        $SMTPServer = "mail.ctmsohio.com"
     )
 
     $SMTPPort = "25"
     $CC = "mjimerson@ctmsohio.com", "ecooper@ctmsohio.com", "jcriss@ctmsohio.com"
+    $From = "Emotet_Alert@$strDomainDNS"
 
     Send-MailMessage -From $From -to $To -Subject $Subject `
         -Body $Message -SmtpServer $SMTPServer -Port $SMTPPort `
@@ -44,4 +36,4 @@ $client = "test"
 $ipv4 = "1.1.1.1"
 $smtpMessage = "Emotet Alerting Test Email    $client : <$ipv4>"
 
-EmailAlert -Message $smtpMessage -From $emailFrom -SMTPServer $emailServer
+EmailAlert -Message $smtpMessage
