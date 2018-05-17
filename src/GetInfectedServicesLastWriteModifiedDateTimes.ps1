@@ -1,5 +1,3 @@
-cd C:\ctms\DetectEmotet
-
 . .\Get-RegistryKeyLastWriteTime.ps1
 
 $regex = '^[0-9]+$'

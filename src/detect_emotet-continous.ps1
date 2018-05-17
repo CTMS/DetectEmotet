@@ -19,7 +19,6 @@ if (Test-Path "C:\Logs\data.csv") {
 $log = "C:\Logs\Emotet.log"
 $regex = '^[0-9]+$'
 $computernames = Get-ADcomputer -Filter {(OperatingSystem -Notlike "*Server*") -and (Enabled -eq $True)} | Select-Object -Expand Name
-$smtpMessage = "!!!Found Emotet Indicators!!!    $client : <$ipv4>"
 $strDomainDNS = $env:USERDNSDOMAIN
 
 # Writes to Log File
@@ -124,6 +123,7 @@ while ($true) {
                 if ($unique) {
                     $array += $obj
                     Write-Log -Level "FATAL" -Message "!!!Found Emotet Indicators!!!    $client : <$ipv4>" -logfile $log
+                    $smtpMessage = "!!!Found Emotet Indicators!!!    $client : <$ipv4>"
                     EmailAlert -Message $smtpMessage
                     if (!(Test-Path PCList.txt)) {
                         New-Item -Name PCList.txt -Type "file"
