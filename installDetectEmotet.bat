@@ -5,12 +5,11 @@ choco upgrade chocolatey
 
 REM Install Git for Windows and reload environment
 choco install git -y
-refreshenv
 
 mkdir c:\ctms\git_repos
 cd c:\ctms\git_repos
 
-git clone https://github.com/CTMS/DetectEmotet.git
+"C:\Program Files\Git\cmd\git.exe" clone https://github.com/CTMS/DetectEmotet.git
 
 cd DetectEmotet\resources
 
