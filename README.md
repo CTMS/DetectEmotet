@@ -1,6 +1,14 @@
 # DetectEmotet
 Script framework to detect service signatures for Emotet banking trojan on Active Directory PCs.
 
+**_Requires Powershell V4 or higher_**
+
+## **Installation**
+Run the following command from an elevated command prompt. Make sure you have an active internet connection. The script will ask you if you want to reboot the server at 0300 to finish installing Powershell V4.
+> @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/CTMS/DetectEmotet/master/installDetectEmotet.bat'))"
+
+This will run the installation script which installs chocolatey, git, Powershell 4, and Detect Emotet. It then sets up the scheduled tasks to update Detect Emotet on a Weekly basis and the task to run the continous detection script. Finally, it will test the email alerting function.
+
 ### **detect_emotet-once.ps1**
 This will run through all online AD computers and query services for numerical regex patterns. Will then log the PC name and IP then send an alert email to CTMS. It then adds the PC name to a text file in the working directory to use with other scripts.
 > _detect_emotet-once Usage_
