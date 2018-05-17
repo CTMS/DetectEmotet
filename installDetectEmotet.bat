@@ -27,7 +27,7 @@ GOTO Next
 :Next
 
 echo Creating detection task
-schtasks /create /tn "Detect Emotet" /tr "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\ctms\git_repos\DetectEmotet\src\detect_emotet-continous.ps1 -emailFrom %EMAIL% -emailServer %SERVER%" /sc Daily /st 13:00 /ru "System" /rl highest
+schtasks /create /tn "Detect Emotet" /tr "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\ctms\git_repos\DetectEmotet\src\detect_emotet-continous.ps1" /sc Daily /st 13:00 /ru "System" /rl highest
 
 echo Testing Email Alerting Feature
 cd c:\ctms\git_repos\DetectEmotet\src
