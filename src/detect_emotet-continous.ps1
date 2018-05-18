@@ -25,6 +25,10 @@ $regex = '^[0-9]+$'
 $computernames = Get-ADcomputer -Filter {(OperatingSystem -Notlike "*Server*") -and (Enabled -eq $True)} | Select-Object -Expand Name
 $strDomainDNS = $env:USERDNSDOMAIN
 
+if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
+    $VerboseFlag = $true
+}
+
 # Writes to Log File
 # INFO: Logs each time a cycle finishes
 # ERROR: Logs each time a connection fails to a PC
@@ -68,8 +72,10 @@ function VerboseLog {
         $logfile
     )
 
-    if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
+    if ($VerboseFlag) {
         Write-Log -Level "DEBUG" -Message $Message -logfile $logfile
+    } else {
+        write-host "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
     }
 }
 
@@ -162,7 +168,7 @@ while ($true) {
 
                 # DEBUG: Verbosity output to list services
                 VerboseLog -Message "Found the following services:" -logfile $verboselog
-                if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
+                if ($VerboseFlag) {
                     foreach ($serv in $services) {
                         VerboseLog -Message "$client - Service Name: $serv" -logfile $verboselog
                     }
