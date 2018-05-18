@@ -17,6 +17,7 @@ if (Test-Path "C:\Logs\data.csv") {
 
 # Global Variables
 $log = "C:\Logs\Emotet.log"
+$verboselog = "C:\Logs\VerboseEmotet.log"
 $regex = '^[0-9]+$'
 $computernames = Get-ADcomputer -Filter {(OperatingSystem -Notlike "*Server*") -and (Enabled -eq $True)} | Select-Object -Expand Name
 $strDomainDNS = $env:USERDNSDOMAIN
@@ -59,6 +60,22 @@ Function Write-Log {
     }
 }
 
+function VerboseLog {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Message,
+        [Parameter(Mandatory = $true)]
+        [string]
+        $logfile
+    )
+
+    if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
+        Write-Log -Level "DEBUG" -Message $Message -logfile $logfile
+    }
+}
+
 # Email Alerting Function
 function EmailAlert {
     [CmdletBinding()]
@@ -97,11 +114,19 @@ while ($true) {
         Write-Verbose ("Testing Connection: {0}" -f $client)
         if (Test-Connection -Computername $client -BufferSize 16 -Count 1 -Quiet) {
             Write-Verbose  "Connection established. Querying Remote Services..."
-            $services = get-service -ComputerName $client | Select-Object -expand name | Select-String -Pattern $regex
-
+            VerboseLog -Message "Checking Services on $client." -logfile $verboselog
+            try {
+                $services = get-service -ComputerName $client | Select-Object -expand name | Select-String -Pattern $regex
+            }
+            catch {
+                VerboseLog -Message "Service connection failed - " -logfile $verboselog
+                VerboseLog -Message $_ -logfile $verboselog
+                continue
+            }
             # If indicator services are detected
             if ($services) {
                 Write-Verbose  "!!!Found Emotet Indicators!!!"
+                VerboseLog -Message "$client Services Found:`r`n $services" -logfile $verboselog
                 $ipv4 = [System.Net.Dns]::GetHostAddresses($client) | ForEach-Object {$_.IPAddressToString } |Select-String -Pattern '\d+\.\d+\.\d+\.\d+'
                 $date = (Get-Date).toString("yyyyMMdd")
 
@@ -118,11 +143,13 @@ while ($true) {
                 foreach ($item in $array) {
                     if ($item.Hostname -eq $obj.Hostname -and $item.Date -eq $obj.Date) {
                         $unique = 0
+                        VerboseLog -Message "Detection is not unique on $client -" -logfile $verboselog
                     }
                 }
                 if ($unique) {
                     $array += $obj
                     Write-Log -Level "FATAL" -Message "!!!Found Emotet Indicators!!!    $client : <$ipv4>" -logfile $log
+                    VerboseLog -Message "Unique detection on $client - Sending Email" -logfile $verboselog
                     $smtpMessage = "!!!Found Emotet Indicators!!!    $client : <$ipv4>"
                     EmailAlert -Message $smtpMessage
                     if (!(Test-Path PCList.txt)) {
@@ -132,18 +159,20 @@ while ($true) {
                     $array | Select-Object Hostname, IPv4, Date | export-csv -LiteralPath "C:\Logs\data.csv"
                 }
                 else {
+                    VerboseLog -Message "Duplicate detection on $client -" -logfile $verboselog
                     Write-Log -Level "WARN" -Message "Potential Duplicate Detection:    $client : <$ipv4>" -logfile $log
                 }
 
                 # DEBUG: Verbosity output to list services
-                Write-Verbose -Message "Found the following services:"
+                VerboseLog -Message "Found the following services:" -logfile $verboselog
                 if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
                     foreach ($serv in $services) {
-                        Write-Verbose ("Service Name: {0}" -f $serv)
+                        VerboseLog -Message "$client - Service Name: $serv" -logfile $verboselog
                     }
                 }
             }
             else {
+                VerboseLog -Message "Nothing found on $client :)" -logfile $verboselog
                 Write-Verbose  "No Suspicous Services Found :)"
                 continue
             }
@@ -151,12 +180,10 @@ while ($true) {
         else {
             # Logs connection failure to the client
             Write-Verbose  ("Computer {0} appears to be offline or inactive." -f $client)
-            if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
-                Write-Log -Level "ERROR" -Message "Failed to Connect to:    $client" -logfile $log
-            }
+            VerboseLog -Message "Failed to Connect to:    $client Offline" -logfile $verboselog
         }
     }
-    Write-Verbose "Current Cycle Finished."
+    VerboseLog -Message "Current Cycle Finished." -logfile $verboselog
     Write-Log -Level "INFO" -Message "Current Cycle Finished." -logfile $log
     # Writes stateful table to disk in csv format
     $array | Select-Object Hostname, IPv4, Date | export-csv -LiteralPath "C:\Logs\data.csv"
