@@ -9,7 +9,9 @@ $array = @()
 
 mkdir C:\Logs
 New-Item -path C:\Logs -name Emotet.log -type "file" -value "INFO Created Log File.`n" -Force
-
+if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
+    New-Item -path C:\Logs -name VerboseEmotet.log -type "file" -value "INFO Created Log File.`n" -Force
+}
 if (Test-Path "C:\Logs\data.csv") {
     $array += Import-CSV "C:\Logs\data.csv"
     clear-content "c:\Logs\data.csv"
