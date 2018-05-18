@@ -8,6 +8,7 @@ Import-module activedirectory
 $array = @()
 
 mkdir C:\Logs
+New-Item -path C:\Logs -name Emotet.log -type "file" -value "INFO Created Log File.`n" -Force
 
 if (Test-Path "C:\Logs\data.csv") {
     $array += Import-CSV "C:\Logs\data.csv"
@@ -51,13 +52,7 @@ Function Write-Log {
     $Line = "$Stamp $Level $Message"
 
     # Tests for logfile and creates file if it does not exist
-    if (!(Test-Path $log)) {
-        New-Item -path C:\Logs -name Emotet.log -type "file" -value "$Stamp INFO Created Log File.`n" -Force
-        Add-Content $logfile -Value $Line
-    }
-    else {
-        Add-Content $logfile -Value $Line
-    }
+    Add-Content $logfile -Value $Line
 }
 
 function VerboseLog {
