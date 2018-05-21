@@ -15,7 +15,7 @@ Register-ScheduledTask -TaskName "Detect Emotet" -Force -Action $sta1 -Trigger $
 #   Ignores new instances if task still running
 #   Attempts to start task Every Sat at noon
 #   Runs as emotetbot robot account with highest run level
-$sta2 = New-ScheduledTaskAction -Execute "C:\ctms\git_repos\DetectEmotet\resources\updateDetectEmotet.bat"
-$sta2 = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Saturday -At 12:00
+$sta2 = New-ScheduledTaskAction -Execute "cmd.exe" -Argument "C:\ctms\git_repos\DetectEmotet\resources\updateDetectEmotet.bat"
+$stt2 = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Saturday -At 12:00
 $sts2 = New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew
-Register-ScheduledTask -TaskName "Update Detect Emotet" -Force -Action $sta2 -Trigger $sta2 -Settings $sts2 -User $cred.username -Password $cred.getNetworkCredential().Password -RunLevel Highest
+Register-ScheduledTask -TaskName "Update Detect Emotet" -Force -Action $sta2 -Trigger $stt2 -Settings $sts2 -User $cred.username -Password $cred.getNetworkCredential().Password -RunLevel Highest
