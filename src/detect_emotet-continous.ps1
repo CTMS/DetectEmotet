@@ -21,6 +21,7 @@ if (Test-Path "C:\Logs\data.csv") {
 # Global Variables
 $log = "C:\Logs\Emotet.log"
 $verboselog = "C:\Logs\VerboseEmotet.log"
+$PCList = "C:\ctms\git_repos\DetectEmotet\src\PCList.txt"
 $regex = '^[0-9]+$'
 $computernames = Get-ADcomputer -Filter {(OperatingSystem -Notlike "*Server*") -and (Enabled -eq $True)} | Select-Object -Expand Name
 $strDomainDNS = $env:USERDNSDOMAIN
@@ -153,10 +154,10 @@ while ($true) {
                     VerboseLog -Message "Unique detection on $client - Sending Email" -logfile $verboselog
                     $smtpMessage = "!!!Found Emotet Indicators!!!    $client : <$ipv4>"
                     EmailAlert -Message $smtpMessage
-                    if (!(Test-Path PCList.txt)) {
-                        New-Item -Name PCList.txt -Type "file"
+                    if (!(Test-Path $PCList)) {
+                        New-Item -Name $PCList -Type "file"
                     }
-                    Add-Content PCList.txt -Value "$client"
+                    Add-Content $PCList -Value "$client"
                     $array | Select-Object Hostname, IPv4, Date | export-csv -LiteralPath "C:\Logs\data.csv"
                 }
                 else {

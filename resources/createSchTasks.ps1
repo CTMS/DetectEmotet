@@ -19,3 +19,6 @@ $sta2 = New-ScheduledTaskAction -Execute "C:\ctms\git_repos\DetectEmotet\resourc
 $stt2 = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Saturday -At 12:00
 $sts2 = New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew
 Register-ScheduledTask -TaskName "Update Detect Emotet" -Force -Action $sta2 -Trigger $stt2 -Settings $sts2 -User $cred.username -Password $cred.getNetworkCredential().Password -RunLevel Highest
+
+
+330-631-5531
