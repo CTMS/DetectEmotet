@@ -1,6 +1,5 @@
 @ECHO OFF
 set /p REBOOT=Schedule Reboot for 0300 for Powershell upgrade? (y)es / (n)o:
-set /p CREDS=Enter credentials for Emotet Robot Account:
 
 echo Installing Chocolatey and upgrade it
 @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
