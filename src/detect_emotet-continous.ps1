@@ -74,8 +74,6 @@ function VerboseLog {
 
     if ($VerboseFlag) {
         Write-Log -Level "DEBUG" -Message $Message -logfile $logfile
-    } else {
-        write-host "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
     }
 }
 

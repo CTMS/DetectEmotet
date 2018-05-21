@@ -1,7 +1,5 @@
 $regex = '^[0-9]+$'
 
-#'AMPC171','CHEVPC33'
-
 $infectedPCs = Get-Content -Path PCList.txt
 
 Write-Host $infectedPCs

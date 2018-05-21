@@ -1,5 +1,6 @@
 @ECHO OFF
 set /p REBOOT=Schedule Reboot for 0300 for Powershell upgrade? (y)es / (n)o:
+set /p CREDS=Enter credentials for Emotet Robot Account:
 
 echo Installing Chocolatey and upgrade it
 @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
@@ -14,9 +15,7 @@ mkdir c:\ctms\git_repos
 cd c:\ctms\git_repos
 "C:\Program Files\Git\cmd\git.exe" clone https://github.com/CTMS/DetectEmotet.git
 
-echo Setting up weekly repo update task
 cd DetectEmotet\resources
-schtasks /create /tn "Update DetectEmotet" /tr "C:\ctms\git_repos\DetectEmotet\resources\updateDetectEmotet.bat" /sc Weekly /d SAT /st 12:00 /ru "System" /rl highest
 
 echo Attempting to Upgrade Powershell to version 4
 IF "%REBOOT%"=="y" GOTO withReboot
@@ -26,8 +25,8 @@ GOTO Next
 @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -File installPS40.ps1 -Reboot
 :Next
 
-echo Creating detection task
-schtasks /create /tn "Detect Emotet" /tr "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\ctms\git_repos\DetectEmotet\src\detect_emotet-continous.ps1" /sc Daily /st 13:00 /ru "System" /rl highest
+echo Setting up Scheduled Tasks
+@"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -File createSchTasks.ps1
 
 echo Testing Email Alerting Feature
 cd c:\ctms\git_repos\DetectEmotet\src

@@ -21,8 +21,6 @@ foreach ($client in $infectedPCs) {
         $remoteregserv = Get-Service -ComputerName $client -Name RemoteRegistry
         $remoteregserv | Set-Service -StartupType Manual
         $remoteregserv | Start-Service
-
-        $serviceFull = Get-Service -ComputerName $client -Name $service.Name
         $subKey = "SYSTEM\CurrentControlSet\Services\$service"
 
         Write-Host("Querying $subKey from $client")
