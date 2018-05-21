@@ -5,7 +5,9 @@ Script framework to detect service signatures for Emotet banking trojan on Activ
 
 
 ## **Installation**
-Run the following command from an elevated command prompt. Make sure you have an active internet connection. The script will ask you if you want to reboot the server at 0300 to finish installing Powershell V4.
+Create a robot domain admin account on AD called emotetbot. Set random secure password and make sure the password does not expire. You will use this password in installation to create the scheduled tasks.
+
+Run the following command from an elevated command prompt. Make sure you have an active internet connection. The script will ask you if you want to reboot the server at 0300 to finish installing Powershell V4. It will then ask for credentials for the robot account you created earlier.
 > @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -enc KABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQARgBpAGwAZQAoACcAaAB0AHQAcABzADoALwAvAHIAYQB3AC4AZwBpAHQAaAB1AGIAdQBzAGUAcgBjAG8AbgB0AGUAbgB0AC4AYwBvAG0ALwBDAFQATQBTAC8ARABlAHQAZQBjAHQARQBtAG8AdABlAHQALwBtAGEAcwB0AGUAcgAvAGkAbgBzAHQAYQBsAGwARABlAHQAZQBjAHQARQBtAG8AdABlAHQALgBiAGEAdAAnACwAJwBDADoAXABXAGkAbgBkAG8AdwBzAFwAVABlAG0AcABcAGkAbgBzAHQAYQBsAGwARABlAHQAZQBjAHQARQBtAG8AdABlAHQALgBiAGEAdAAnACkAOwAgAEMAOgBcAFcAaQBuAGQAbwB3AHMAXABUAGUAbQBwAFwAaQBuAHMAdABhAGwAbABEAGUAdABlAGMAdABFAG0AbwB0AGUAdAAuAGIAYQB0AA==
 
 This will run the installation script which installs chocolatey, git, Powershell 4, and Detect Emotet. It then sets up the scheduled tasks to update Detect Emotet on a Weekly basis and the task to run the continous detection script. Finally, it will test the email alerting function.
