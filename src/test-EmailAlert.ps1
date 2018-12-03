@@ -27,9 +27,11 @@ function EmailAlert {
     $CC = "mjimerson@ctmsohio.com", "ecooper@ctmsohio.com", "jcriss@ctmsohio.com"
     $From = "Emotet_Alert@$strDomainDNS"
 
+	[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
+
     Send-MailMessage -From $From -to $To -Subject $Subject `
         -Body $Message -SmtpServer $SMTPServer -Port $SMTPPort `
-        -Cc $CC
+        -Cc $CC -UseSSL
 }
 
 $client = "test"
